@@ -11,6 +11,11 @@ import {
 } from "@mantine/core"
 import { createTheme } from "@mantine/core"
 
+//gp packages
+import * as tf from '@tensorflow/tfjs'
+import * as sk from 'scikitjs'
+sk.setBackend(tf)
+
 import "@fontsource/manrope"
 import "@fontsource/manrope/700.css"
 import { AudioCalibrate } from "./widgets/AudioCalibrate.tsx"
@@ -49,6 +54,8 @@ const router = createBrowserRouter([
         element: <Results />
     }
 ])
+
+
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
