@@ -11,12 +11,12 @@ import { useNavigate } from "react-router"
 import { WarbleToneSupplier } from "../audio/impl/warble"
 import { PureToneSupplier } from "../audio/impl/pure"
 import * as Tone from "tone"
-import { GenericToneIterator } from "../audio/impl/genericIterator"
+import { GpToneIterator } from "../audio/impl/GpToneIterator"
 
 export function Test() {
     const [volume, setVolume] = useState(0)
-    const [frequency, setFrequency] = useState(GenericToneIterator.currentTone()?.frequency ?? 0) // Default frequency for A4
-    const [whichEar, setWhichEar] = useState(GenericToneIterator.currentTone()?.ear ?? "right") // Default ear selection
+    const [frequency, setFrequency] = useState(GpToneIterator.currentTone()?.frequency ?? 0) // Default frequency for A4
+    const [whichEar, setWhichEar] = useState(GpToneIterator.currentTone()?.ear ?? "right") // Default ear selection
     const navigate = useNavigate()
 
     const player = WarbleToneSupplier
@@ -41,13 +41,13 @@ export function Test() {
     }, [whichEar]) // Dependency array to re-run effect when whichEar changes
 
     const handleNext = () => {
-        GenericToneIterator.nextTone({
+        GpToneIterator.nextTone({
             frequency: frequency,
             level: volume,
             ear: whichEar
         })
 
-        const nextTone = GenericToneIterator.currentTone();
+        const nextTone = GpToneIterator.currentTone();
 
         if (nextTone) {
             setFrequency(nextTone.frequency)

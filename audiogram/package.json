@@ -18,6 +18,7 @@
     "@mantinex/mantine-logo": "^2.0.0",
     "@tabler/icons-react": "^3.34.0",
     "@tensorflow/tfjs": "^4.22.0",
+    "ml-matrix": "^6.12.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router": "^7.6.3",

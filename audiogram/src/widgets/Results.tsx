@@ -13,6 +13,7 @@ import { PureToneSupplier } from "../audio/impl/pure"
 import * as Tone from "tone"
 import { LineChart } from '@mantine/charts';
 import { GenericToneIterator } from "../audio/impl/genericIterator"
+import { GpToneIterator } from "../audio/impl/GpToneIterator"
 
 export function Results() {
     const navigate = useNavigate()
@@ -27,13 +28,13 @@ export function Results() {
         //set tonejs volume to 0
         Tone.Master.volume.value = -Infinity // Mute the master volume to stop any sound
 
-        console.log("Collected Data:", GenericToneIterator.getCollectedData())
+        console.log("Collected Data:", GpToneIterator.getCollectedData())
 
         //merge entries with the same frequency
         let mergedData: { frequency: number; left: number | null; right: number | null }[] = []
 
 
-        GenericToneIterator.getCollectedData().forEach((item) => {
+        GpToneIterator.getCollectedData().sort((a, b) => a.frequency - b.frequency).forEach((item) => {
             const existing = mergedData.find(d => d.frequency === item.frequency)
             if (existing) {
                 existing[item.ear as ('left' | 'right')] = item.level
