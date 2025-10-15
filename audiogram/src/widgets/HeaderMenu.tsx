@@ -58,7 +58,7 @@ export function HeaderMenu() {
                     color: "var(--mantine-primary-color-2)"
                 }}
             >
-                SmartHearing
+                BetterHearing
             </div>
         </header>
     )

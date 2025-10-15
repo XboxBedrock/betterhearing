@@ -17,8 +17,8 @@ export class GpToneIterator extends ToneIterator {
 
     // Tuning
     private static readonly STOP_DB = 3 // stop when max posterior std < 3 dB
-    private static readonly MIN_POINTS = 4 // min points per ear before allowing stop
-    private static readonly MAX_TESTS_PER_EAR = 9 // hard cap
+    private static readonly MIN_POINTS = 3 // min points per ear before allowing stop
+    private static readonly MAX_TESTS_PER_EAR = 5 // hard cap
     private static readonly SLOPE_TRIGGER = 15 // dB/octave → force midpoint test
 
     // Data store (same shape as your GenericToneIterator)

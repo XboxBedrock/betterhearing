@@ -28,13 +28,31 @@ export function Results() {
         //set tonejs volume to 0
         Tone.Master.volume.value = -Infinity // Mute the master volume to stop any sound
 
-        console.log("Collected Data:", GpToneIterator.getCollectedData())
+        // Get data from URL parameters
+        const urlParams = new URLSearchParams(window.location.search)
+        const dataParam = urlParams.get('data')
+        
+        let collectedData: { frequency: number; level: number; ear: string }[] = []
+        
+        if (dataParam) {
+            try {
+                collectedData = JSON.parse(decodeURIComponent(dataParam))
+                console.log("Collected Data from URL:", collectedData)
+            } catch (error) {
+                console.error("Error parsing data from URL:", error)
+                // Fallback to GpToneIterator if URL parsing fails
+                collectedData = GpToneIterator.getCollectedData()
+            }
+        } else {
+            // Fallback to GpToneIterator if no URL data
+            collectedData = GpToneIterator.getCollectedData()
+            console.log("Collected Data from GpToneIterator:", collectedData)
+        }
 
         //merge entries with the same frequency
         let mergedData: { frequency: number; left: number | null; right: number | null }[] = []
 
-
-        GpToneIterator.getCollectedData().sort((a, b) => a.frequency - b.frequency).forEach((item) => {
+        collectedData.sort((a, b) => a.frequency - b.frequency).forEach((item) => {
             const existing = mergedData.find(d => d.frequency === item.frequency)
             if (existing) {
                 existing[item.ear as ('left' | 'right')] = item.level
@@ -90,8 +108,7 @@ export function Results() {
                 "background": "var(--mantine-color-dark-9)",
                 "paddingLeft": "56px",
                 "paddingRight": "56px",
-                "-moz-box-sizing": "border-box",
-                "box-sizing": "border-box"
+                "boxSizing": "border-box"
             }}
         >
             <span
@@ -107,7 +124,7 @@ export function Results() {
                     data={data}
                     dataKey="frequency"
                     yAxisProps={{domain: [-10, 80], reversed: true, tickCount: 10}}
-                    xAxisProps={{orientation: 'top'}}
+                    xAxisProps={{orientation: 'bottom'}}
                     series={[
                         { name: 'left', color: 'indigo.6' },
                         { name: 'right', color: 'blue.6' },
