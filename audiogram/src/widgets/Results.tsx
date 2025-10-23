@@ -123,7 +123,7 @@ export function Results() {
                     h="70vh"
                     data={data}
                     dataKey="frequency"
-                    yAxisProps={{domain: [-10, 80], reversed: true, tickCount: 10}}
+                    yAxisProps={{domain: [-10, 80], reversed: true, ticks: [-10, 0, 10, 20, 30, 40, 50, 60, 70, 80]}}
                     xAxisProps={{orientation: 'bottom'}}
                     series={[
                         { name: 'left', color: 'indigo.6' },

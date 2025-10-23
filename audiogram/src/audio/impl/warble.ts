@@ -55,6 +55,7 @@ export class WarbleToneSupplier extends ToneSupplier {
 
         // Convert levelHL to dB SPL relative to the reference threshold
         const levelDbSPL = this.levelHL + ref - WarbleToneSupplier.dbOffset // Assuming levelHL is in dB
+        console.log(`Freq: ${WarbleToneSupplier.fc}Hz, HL: ${this.levelHL}dB, Ref: ${ref}dB, Offset: ${WarbleToneSupplier.dbOffset}dB, Final SPL: ${levelDbSPL}dB`)
 
         WarbleToneSupplier.osc = new Tone.Oscillator({
             frequency: WarbleToneSupplier.fc, // base pitch in Hz
@@ -62,14 +63,15 @@ export class WarbleToneSupplier extends ToneSupplier {
         })
 
         WarbleToneSupplier.vol = new Tone.Volume({
-            volume: 10 // Set the volume to the calculated dB SPL
-        }).toDestination() // Connect the volume node to the destination
+            volume: 10 // Fixed level - master volume is adjusted via changeVolume()
+        }) // Don't connect to destination here - we'll route through panner
 
         const now = startTime
 
-        WarbleToneSupplier.osc.connect(WarbleToneSupplier.vol) // Connect the oscillator to the volume node
-
-        WarbleToneSupplier.osc.toDestination()
+        // Connect audio chain: Oscillator -> Volume -> Panner -> Destination
+        WarbleToneSupplier.osc.connect(WarbleToneSupplier.vol)
+        WarbleToneSupplier.vol.connect(WarbleToneSupplier.panner)
+        WarbleToneSupplier.panner.toDestination()
 
         // Add warble effect: modulate frequency with an LFO
 
@@ -81,8 +83,6 @@ export class WarbleToneSupplier extends ToneSupplier {
         }).start()
 
         lfo.connect(WarbleToneSupplier.osc.frequency) // Connect LFO to oscillator frequency
-
-        lfo.connect(WarbleToneSupplier.panner.toDestination()) // Connect LFO to panner for stereo effect
 
         // Add pauses at fixed intervals with fade in and out
         const interval = 1.2; // Pause interval in seconds
@@ -128,11 +128,8 @@ export class WarbleToneSupplier extends ToneSupplier {
     }
 
     public static changeVolume(volume: number): void {
-        // Change the volume of the oscillator
-        // This is a placeholder as Tone.js handles volume differently
-        // You might need to adjust the volume of the destination or the oscillator directly
-
         this.levelHL = volume // Update the levelHL to reflect the new volume
+        
         if (WarbleToneSupplier.vol) {
             const ref = REFERENCE_THRESHOLDS_FREE_FIELD[WarbleToneSupplier.fc] || 0 // Default to 0 if not found
 
@@ -145,6 +142,8 @@ export class WarbleToneSupplier extends ToneSupplier {
     }
 
     public static  setEar(ear: "left" | "right"): void {
-        WarbleToneSupplier.panner.pan.value = ear === "right" ? -1 : 1; // Set panner value for stereo output
+        // In Tone.js Panner: -1 = left, 0 = center, 1 = right
+        WarbleToneSupplier.panner.pan.value = ear === "right" ? 1 : -1;
+        console.log(`Set ear to ${ear}, panner value: ${WarbleToneSupplier.panner.pan.value}`);
     }
 }

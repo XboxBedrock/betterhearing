@@ -88,9 +88,17 @@ export class GpToneIterator extends ToneIterator {
         if (tests >= this.MIN_POINTS) {
             const maxStd = this.maxPosteriorStd(ear)
             const tooMany = tests >= this.MAX_TESTS_PER_EAR
-            if (maxStd <= this.STOP_DB || tooMany) {
+            // Stop early if we're confident (low uncertainty) OR hit the hard cap
+            if (maxStd <= this.STOP_DB) {
+                // Quality-based stopping: we're confident in our estimate
                 if (ear === "left") this.doneLeft = true
                 else this.doneRight = true
+                console.log(`Stopping ${ear} ear early after ${tests} tests (uncertainty: ${maxStd.toFixed(1)} dB <= ${this.STOP_DB} dB)`)
+            } else if (tooMany) {
+                // Hard cap: stop anyway if we've done too many tests
+                if (ear === "left") this.doneLeft = true
+                else this.doneRight = true
+                console.log(`Stopping ${ear} ear at hard cap after ${tests} tests (uncertainty: ${maxStd.toFixed(1)} dB > ${this.STOP_DB} dB)`)
             }
         }
 
