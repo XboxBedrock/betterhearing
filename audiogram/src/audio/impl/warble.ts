@@ -27,7 +27,6 @@ export class WarbleToneSupplier extends ToneSupplier {
         )
     }
 
-    //@ts-expect-error will use later
     private static async playToneAtHL(
         freq: number,
         duration: number,
@@ -44,7 +43,6 @@ export class WarbleToneSupplier extends ToneSupplier {
     private static async playToneAtHLNoStart(
         freq: number,
         duration: number,
-        //@ts-expect-error will use later
         sampleRate = 44100,
         startTime: number = Tone.now()
     ) {

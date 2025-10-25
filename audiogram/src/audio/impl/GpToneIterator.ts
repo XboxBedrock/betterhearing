@@ -181,8 +181,9 @@ export class GpToneIterator extends ToneIterator {
 
         let bestF = candidates[0],
             bestStd = -Infinity
+        
         for (const f of candidates) {
-            const { std } = gp.predictAt(f)
+            const { std } = gp.predictAt(f) // Predict at the candidate frequency, get the standard deviation
             if (std > bestStd) {
                 bestStd = std
                 bestF = f

@@ -45,6 +45,7 @@ export function AudioCalibrate() {
                 "background": "var(--mantine-color-dark-9)",
                 "paddingLeft": "56px", // Added left inner padding
                 "paddingRight": "56px", // Added right inner padding
+                //@ts-expect-error for some reason ts dosen't like firefox....
                 "-moz-box-sizing": "border-box",
                 "box-sizing": "border-box"
                 // Added to allow scrolling if content overflows

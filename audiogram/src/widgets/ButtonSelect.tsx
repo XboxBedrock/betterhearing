@@ -24,6 +24,7 @@ export function ButtonSelect() {
                 "background": "var(--mantine-color-dark-9)",
                 "overflow": "hidden",
                 "padding": "20px", // Added inner padding
+                //@ts-expect-error for some reason ts dosen't like firefox....
                 "-moz-box-sizing": "border-box",
                 "box-sizing": "border-box"
             }}

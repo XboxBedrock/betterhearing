@@ -22,7 +22,6 @@ export class PureToneSupplier extends ToneSupplier {
         )
     }
 
-    //@ts-expect-error will use later
     private async playToneAtHL(
         freq: number,
         duration: number,
@@ -39,7 +38,6 @@ export class PureToneSupplier extends ToneSupplier {
     private async playToneAtHLNoStart(
         freq: number,
         duration: number,
-        //@ts-expect-error will use later
         sampleRate = 44100,
         startTime: number = Tone.now()
     ) {
