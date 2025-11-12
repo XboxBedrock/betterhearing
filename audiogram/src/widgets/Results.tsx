@@ -13,7 +13,7 @@ import { PureToneSupplier } from "../audio/impl/pure"
 import * as Tone from "tone"
 import { LineChart } from '@mantine/charts';
 import { GenericToneIterator } from "../audio/impl/genericIterator"
-import { GpToneIterator } from "../audio/impl/gpToneIterator"
+import { GpToneIterator } from "../audio/impl/GpToneIterator"
 
 export function Results() {
     const navigate = useNavigate()

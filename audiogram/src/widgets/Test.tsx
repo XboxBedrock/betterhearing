@@ -8,7 +8,7 @@ import {
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router"
 import { WarbleToneSupplier } from "../audio/impl/warble"
-import { GpToneIterator } from "../audio/impl/gpToneIterator"
+import { GpToneIterator } from "../audio/impl/GpToneIterator"
 
 export function Test() {
     const [volume, setVolume] = useState(0)
