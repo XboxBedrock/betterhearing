@@ -8,59 +8,57 @@ import {
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router"
 import { WarbleToneSupplier } from "../audio/impl/warble"
-import { GpToneIterator } from "../audio/impl/GpToneIterator"
+import { GpToneIterator } from "../audio/impl/gpToneIterator"
 
 export function Test() {
     const [volume, setVolume] = useState(0)
-    const [frequency, setFrequency] = useState(GpToneIterator.currentTone()?.frequency ?? 0) // Default frequency for A4
-    const [whichEar, setWhichEar] = useState(GpToneIterator.currentTone()?.ear ?? "right") // Default ear selection
-    const [isPlaying, setIsPlaying] = useState(true) // Default to playing
-    const [hasAdjustedVolume, setHasAdjustedVolume] = useState(false) // Track if user has adjusted volume
+    const [frequency, setFrequency] = useState(GpToneIterator.currentTone()?.frequency ?? 0) 
+    const [whichEar, setWhichEar] = useState(GpToneIterator.currentTone()?.ear ?? "right") 
+    const [isPlaying, setIsPlaying] = useState(true) // playing by default
+    const [hasAdjustedVolume, setHasAdjustedVolume] = useState(false)
     const navigate = useNavigate()
     
-    // Check for debug flag in URL
+    // Check for debug flag
     const isDebugMode = new URLSearchParams(window.location.search).get('debug') === 'true'
 
     const player = WarbleToneSupplier
 
     useEffect(() => {
         player.stopTone() 
-        // Start playing by default
+
         player.playTone(frequency, 0.5, 0.3, volume, 50)
         player.setEar(whichEar as ('left' | "right"))
         setIsPlaying(true)
         //stop on dismount
         return () => {
-            player.stopTone() // Stop the tone when the component unmounts
+            player.stopTone() 
         }
-    }, [frequency]) // Re-run effect when frequency changes
+    }, [frequency]) 
 
     useEffect(() => {
         if (isPlaying) {
-            // If currently playing, restart with new volume
+
             player.stopTone()
             player.playTone(frequency, 0.5, 0.3, volume, 50)
             player.setEar(whichEar as ('left' | "right"))
         }
-    }, [volume]) // Dependency array to re-run effect when volume changes
+    }, [volume])
 
     useEffect(() => {
         if (isPlaying) {
-            // If currently playing, restart with new ear setting
             player.stopTone()
             player.playTone(frequency, 0.5, 0.3, volume, 50)
             player.setEar(whichEar as ('left' | "right"))
         }
-    }, [whichEar]) // Dependency array to re-run effect when whichEar changes
+    }, [whichEar])
 
     const togglePlayPause = () => {
         if (isPlaying) {
             player.stopTone()
             setIsPlaying(false)
         } else {
-            // Ensure we stop any existing tone first
+            // stop any existing tone
             player.stopTone()
-            // Start playing with current settings
             player.playTone(frequency, 0.5, 0.3, volume, 50)
             player.setEar(whichEar as ('left' | "right"))
             setIsPlaying(true)
@@ -79,15 +77,15 @@ export function Test() {
         if (nextTone) {
             setFrequency(nextTone.frequency)
             setWhichEar(nextTone.ear)
-            setVolume(0) // Reset volume for the next tone
-            setHasAdjustedVolume(false) // Reset volume adjustment flag for new tone
-            player.playTone(nextTone.frequency, 0.5, 0.3, 0, 50) // Play the next tone with reset volume
+            setVolume(0) // reset volume for next tone
+            setHasAdjustedVolume(false)
+            player.playTone(nextTone.frequency, 0.5, 0.3, 0, 50)
         } else {
-            // No more tones available, collect all data and navigate to results page
+            // no more tones available, collect all data and navigate to results page
             const collectedData = GpToneIterator.getCollectedData()
             console.log("No more tones available", collectedData)
             
-            // Encode the data as URL parameters
+            // encode the data as URL parameters
             const dataParam = encodeURIComponent(JSON.stringify(collectedData))
             navigate(`/results?data=${dataParam}`)
         }
@@ -127,7 +125,6 @@ export function Test() {
                     marginBottom: "40px"
                 }}
             >
-                {/* Volume Decrease Button */}
                 <ActionIcon
                     variant="outline"
                     color="var(--mantine-color-dark-0)"
@@ -142,7 +139,6 @@ export function Test() {
                     <IconMinus size={40} stroke={1.5} />
                 </ActionIcon>
 
-                {/* Play/Pause Button */}
                 <ActionIcon
                     variant="filled"
                     color="blue"
@@ -161,7 +157,6 @@ export function Test() {
                     )}
                 </ActionIcon>
 
-                {/* Volume Increase Button */}
                 <ActionIcon
                     variant="outline"
                     color="var(--mantine-color-dark-0)"
@@ -177,7 +172,6 @@ export function Test() {
                 </ActionIcon>
             </div>
             
-            {/* Debug volume display */}
             {isDebugMode && (
                 <div
                     style={{

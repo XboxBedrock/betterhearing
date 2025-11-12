@@ -8,13 +8,13 @@ function generateTone(
     const angularFrequency = (2 * Math.PI * frequency) / sampleRate
 
     for (let i = 0; i < samples; i++) {
-        buffer[i] = Math.sin(angularFrequency * i) // Adding a second sine wave at 90 degrees phase shift
+        buffer[i] = Math.sin(angularFrequency * i)
     }
 
     return buffer
 }
 
-//add amplitude param in decibels pressure dB SPL
+
 export function generateToneWithAmplitude(
     frequency: number,
     duration: number,
@@ -22,7 +22,7 @@ export function generateToneWithAmplitude(
     sampleRate: number = 44100
 ): Float32Array {
     const buffer = generateTone(frequency, duration, sampleRate)
-    const scale = 20 * Math.pow(10, amplitude / 20) // Convert dB SPL to linear scale
+    const scale = 20 * Math.pow(10, amplitude / 20) 
     //add a lil ramp up and down to avoid clicks
     const rampUp = Math.min(1, (0.01 * sampleRate) / duration) // 10ms ramp up
     const rampDown = Math.min(1, (0.01 * sampleRate) / duration) // 10ms ramp down
@@ -32,12 +32,12 @@ export function generateToneWithAmplitude(
             //ramp down still has clicks
         }
         if (i > buffer.length - rampDown * sampleRate) {
-            buffer[i] *= (buffer.length - i) / (rampDown * sampleRate) // Ramp down
+            buffer[i] *= (buffer.length - i) / (rampDown * sampleRate) 
         }
     }
     for (let i = 0; i < buffer.length; i++) {
         console.log(buffer[i])
-        buffer[i] *= scale // Apply amplitude scaling
+        buffer[i] *= scale 
     }
     return buffer
 }

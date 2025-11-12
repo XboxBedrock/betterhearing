@@ -1,6 +1,6 @@
 import { ToneIterator } from "../struct/ToneIterator";
 
-//define an abstract class that extends iterator, giving the next tone based on the previous one, it should also have a store of frequencies and levels collected so far, incuding the ear
+// Generic implementation of ToneIterator for standard audiogram frequencies
 export class GenericToneIterator extends ToneIterator {
 
     private static readonly CENTRES = [
@@ -8,7 +8,7 @@ export class GenericToneIterator extends ToneIterator {
         1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000
     ]
 
-    private static frequencyQueue: {frequency: number, ear: string}[] = [];
+    private static frequencyQueue: { frequency: number, ear: string }[] = [];
 
     private static data: { frequency: number; level: number; ear: string }[] = [];
 

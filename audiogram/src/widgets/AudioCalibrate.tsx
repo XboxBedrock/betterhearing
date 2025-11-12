@@ -5,26 +5,60 @@ import {
     IconEar,
     IconHeadphones
 } from "@tabler/icons-react"
-import { useState } from "react" // Added import for navigation
+import { useState, useRef, useEffect } from "react" 
 import { useNavigate } from "react-router"
 
 export function AudioCalibrate() {
     const [calibrationClicked, setCalibrationClicked] = useState(false)
     const [isPlaying, setIsPlaying] = useState(false)
-    const navigate = useNavigate() // Added navigation hook
-    const audio = new Audio("calibrate.ogg")
+    const navigate = useNavigate() 
+
+
+    const audioRef = useRef<HTMLAudioElement | null>(null)
+
+    useEffect(() => {
+
+        audioRef.current = new Audio("/calibrate.ogg")
+        return () => {
+            if (audioRef.current) {
+                try {
+                    audioRef.current.pause()
+                    audioRef.current.currentTime = 0
+                    audioRef.current.onended = null
+                } catch (e) {
+                    // ignore
+                }
+            }
+        }
+    }, [])
 
     const handlePlayAudio = () => {
-        // Updated path to match the correct location
+        const audio = audioRef.current
+        if (!audio) return
         setIsPlaying(true)
         audio.play()
-        audio.onended = () => setIsPlaying(false) // Enable button after audio ends
+        audio.onended = () => setIsPlaying(false)
         setCalibrationClicked(true)
+    }
+
+    const stopAudio = () => {
+        const audio = audioRef.current
+        if (!audio) return
+        try {
+            audio.pause()
+            audio.currentTime = 0
+            audio.onended = null
+        } catch (e) {
+            // ignore
+        }
+        setIsPlaying(false)
     }
 
     const handleNext = () => {
         if (calibrationClicked) {
-            navigate("/test") // Navigate to "/test" when Next button is clicked
+            // stop any playing calibration audio before navigating
+            stopAudio()
+            navigate("/test") 
         }
     }
 
@@ -37,14 +71,14 @@ export function AudioCalibrate() {
         <div
             style={{
                 "width": "100vw",
-                "height": "calc(100vh - var(--app-shell-header-height))", // Adjusted height to fill the remaining space below the header
+                "height": "calc(100vh - var(--app-shell-header-height))", 
                 "display": "flex",
                 "flexDirection": "column",
                 "alignItems": "center",
                 "justifyContent": "top",
                 "background": "var(--mantine-color-dark-9)",
-                "paddingLeft": "56px", // Added left inner padding
-                "paddingRight": "56px", // Added right inner padding
+                "paddingLeft": "56px",
+                "paddingRight": "56px",
                 //@ts-expect-error for some reason ts dosen't like firefox....
                 "-moz-box-sizing": "border-box",
                 "box-sizing": "border-box"
@@ -56,7 +90,7 @@ export function AudioCalibrate() {
                     color: "var(--mantine-color-dark-0)",
                     fontSize: "3rem",
                     marginTop: "2rem",
-                    textAlign: "center" // Added to center text horizontally
+                    textAlign: "center" 
                 }}
             >
                 Calibrate
@@ -67,8 +101,8 @@ export function AudioCalibrate() {
                     //make 2vh on mobile but 1.5rem on desktop
                     fontSize: "2vh",
                     //marginTop: "10px",
-                    textAlign: "left", // Added to center text horizontally
-                    width: "70vw" // Added width to limit text width
+                    textAlign: "left",
+                    width: "70vw"
                 }}
             >
                 Listen to the calibration file. Then, without headphones, rub your hands

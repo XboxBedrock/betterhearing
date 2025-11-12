@@ -23,7 +23,7 @@ export function ButtonSelect() {
                 "gap": "5rem",
                 "background": "var(--mantine-color-dark-9)",
                 "overflow": "hidden",
-                "padding": "20px", // Added inner padding
+                "padding": "20px", 
                 //@ts-expect-error for some reason ts dosen't like firefox....
                 "-moz-box-sizing": "border-box",
                 "box-sizing": "border-box"
@@ -34,7 +34,7 @@ export function ButtonSelect() {
                     color: "var(--mantine-color-dark-0)",
                     fontSize: "3rem",
                     //marginTop: "10px",
-                    textAlign: "center" // Added to center text horizontally
+                    textAlign: "center" 
                 }}
             >
                 Select your device
@@ -44,7 +44,7 @@ export function ButtonSelect() {
                     width: "100vw",
                     display: "flex",
                     justifyContent: "center",
-                    gap: "15vw", // Added padding for better spacing
+                    gap: "15vw", 
                     alignItems: "center",
                     background: "var(--mantine-color-dark-9)",
                     overflow: "hidden"
@@ -56,7 +56,7 @@ export function ButtonSelect() {
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: "20px" // Added gap for spacing between items
+                        gap: "20px" 
                     }}
                 >
                     <ActionIcon
@@ -71,8 +71,8 @@ export function ButtonSelect() {
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center",
-                            flexDirection: "column", // Ensure items are stacked vertically
-                            gap: "10px" // Added gap to ensure vertical spacing between items
+                            flexDirection: "column",
+                            gap: "10px"
                         }}
                         onClick={() => nextPage("headphones")}
                     >
@@ -80,14 +80,13 @@ export function ButtonSelect() {
                             style={{ width: "70%", height: "70%" }}
                             stroke={1.5}
                         />{" "}
-                        {/* Adjusted height to make space for text */}
                     </ActionIcon>
                     <div
                         style={{
                             color: "var(--mantine-primary-color-2)",
                             fontSize: "1.5rem",
                             //marginTop: "10px",
-                            textAlign: "center" // Added to center text horizontally
+                            textAlign: "center"
                         }}
                     >
                         Headphones
@@ -100,7 +99,7 @@ export function ButtonSelect() {
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: "20px" // Added gap for spacing between items
+                        gap: "20px"
                     }}
                 >
                     <ActionIcon
@@ -115,8 +114,8 @@ export function ButtonSelect() {
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center",
-                            flexDirection: "column", // Ensure items are stacked vertically
-                            gap: "10px" // Added gap to ensure vertical spacing between items
+                            flexDirection: "column",
+                            gap: "10px"
                         }}
                         onClick={() => nextPage("earbuds")}
                     >
@@ -124,14 +123,13 @@ export function ButtonSelect() {
                             style={{ width: "70%", height: "70%" }}
                             stroke={1.5}
                         />{" "}
-                        {/* Adjusted height to make space for text */}
                     </ActionIcon>
                     <div
                         style={{
                             color: "var(--mantine-primary-color-2)",
                             fontSize: "1.5rem",
                             //marginTop: "10px",
-                            textAlign: "center" // Added to center text horizontally
+                            textAlign: "center"
                         }}
                     >
                         Earbuds

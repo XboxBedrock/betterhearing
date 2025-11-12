@@ -5,7 +5,7 @@ type Ear = "left" | "right"
 type Tone = { frequency: number; level: number; ear: string }
 
 export class GpToneIterator extends ToneIterator {
-    // Your full bank; adaptive focuses on 250–8000 for screening
+
     private static readonly CENTRES = [
         31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000,
         1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000
@@ -15,17 +15,17 @@ export class GpToneIterator extends ToneIterator {
     )
     private static readonly SEED = [1000, 4000, 250]
 
-    // Tuning
-    private static readonly STOP_DB = 3 // stop when max posterior std < 3 dB
-    private static readonly MIN_POINTS = 3 // min points per ear before allowing stop
-    private static readonly MAX_TESTS_PER_EAR = 5 // hard cap
-    private static readonly SLOPE_TRIGGER = 15 // dB/octave → force midpoint test
 
-    // Data store (same shape as your GenericToneIterator)
+    private static readonly STOP_DB = 3 // stop when max posterior std < 3 dB
+    private static readonly MIN_POINTS = 3 // min points per ear before stop
+    private static readonly MAX_TESTS_PER_EAR = 5
+    private static readonly SLOPE_TRIGGER = 15 // slope test trigger
+
+
     private static data: { frequency: number; level: number; ear: string }[] = []
 
-    // Per-ear model & bookkeeping
-    private static gpLeft = new GaussianProcess1D({ sigmaF: 40, ell: 0.6, sigmaN: 3 })
+
+    private static gpLeft = new GaussianProcess1D({ sigmaF: 40, ell: 0.6, sigmaN: 3 }) //1 model per ear
     private static gpRight = new GaussianProcess1D({ sigmaF: 40, ell: 0.6, sigmaN: 3 })
     private static testedLeft = new Set<number>()
     private static testedRight = new Set<number>()
@@ -38,12 +38,10 @@ export class GpToneIterator extends ToneIterator {
 
     private static nextEar: Ear = "left"
 
-    // ---- Public API ---------------------------------------------------------
 
     public static nextTone(
         previousTone: Tone
     ): { frequency: number; ear: string } | null {
-        // Ingest the measurement (if any)
 
         const ear = previousTone.ear as Ear
         this.data.push({
@@ -53,7 +51,6 @@ export class GpToneIterator extends ToneIterator {
         })
         this.addObs(ear, previousTone.frequency, previousTone.level)
 
-        // Commit the next
         const nxt = this.computeNext(false)
         return nxt ? { frequency: nxt.frequency, ear: nxt.ear } : null
     }
@@ -71,38 +68,34 @@ export class GpToneIterator extends ToneIterator {
         return this.data
     }
 
-    // ---- Internals ----------------------------------------------------------
 
     private static addObs(ear: Ear, fHz: number, yDb: number) {
         const gp = ear === "left" ? this.gpLeft : this.gpRight
         const tested = ear === "left" ? this.testedLeft : this.testedRight
 
-        gp.add(fHz, yDb) // GP class updates lazily; fit occurs on predict if needed
+        gp.add(fHz, yDb)
         tested.add(fHz)
 
         if (ear === "left") this.testsLeft++
         else this.testsRight++
 
-        // Check stop criteria for this ear
         const tests = ear === "left" ? this.testsLeft : this.testsRight
         if (tests >= this.MIN_POINTS) {
             const maxStd = this.maxPosteriorStd(ear)
             const tooMany = tests >= this.MAX_TESTS_PER_EAR
-            // Stop early if we're confident (low uncertainty) OR hit the hard cap
+
             if (maxStd <= this.STOP_DB) {
-                // Quality-based stopping: we're confident in our estimate
                 if (ear === "left") this.doneLeft = true
                 else this.doneRight = true
                 console.log(`Stopping ${ear} ear early after ${tests} tests (uncertainty: ${maxStd.toFixed(1)} dB <= ${this.STOP_DB} dB)`)
             } else if (tooMany) {
-                // Hard cap: stop anyway if we've done too many tests
                 if (ear === "left") this.doneLeft = true
                 else this.doneRight = true
                 console.log(`Stopping ${ear} ear at hard cap after ${tests} tests (uncertainty: ${maxStd.toFixed(1)} dB > ${this.STOP_DB} dB)`)
             }
         }
 
-        // Ear alternation policy:
+        // Ear switching
         const other = ear === "left" ? "right" : "left"
         const thisSeeding =
             (ear === "left" ? this.seedsLeftIdx : this.seedsRightIdx) < this.SEED.length
@@ -127,15 +120,13 @@ export class GpToneIterator extends ToneIterator {
     private static computeNext(
         peekOnly: boolean
     ): { frequency: number; ear: Ear } | null {
-        // All done?
         if (this.doneLeft && this.doneRight) return null
 
-        // Choose ear
         let ear: Ear = this.nextEar
         if (this.isDone(ear)) ear = ear === "left" ? "right" : "left"
         if (this.isDone(ear)) return null
 
-        // 1) Seeding phase
+        //Seeding
         const seedsIdx = ear === "left" ? this.seedsLeftIdx : this.seedsRightIdx
         if (seedsIdx < this.SEED.length) {
             // pick next unused seed
@@ -145,7 +136,7 @@ export class GpToneIterator extends ToneIterator {
                 if (!peekOnly) {
                     if (ear === "left") this.seedsLeftIdx = k + 1
                     else this.seedsRightIdx = k + 1
-                    this.nextEar = ear // finish seeding same ear
+                    this.nextEar = ear
                 }
                 return { frequency: this.SEED[k], ear }
             } else {
@@ -157,18 +148,18 @@ export class GpToneIterator extends ToneIterator {
             }
         }
 
-        // 2) Large-slope guard: if neighbors differ a lot, force midpoint
+        // Slope forced midpoint
         const mid = this.findLargeSlopeMidpoint(ear, this.SLOPE_TRIGGER)
         if (mid !== null) {
             return { frequency: mid, ear }
         }
 
-        // 3) Adaptive: argmax posterior std among unused candidates
+        // argmax posterior std among unused candidates
         const gp = this.getGp(ear)
         const tested = this.getTested(ear)
         const candidates = this.ADAPTIVE_CANDIDATES.filter(f => !tested.has(f))
 
-        // No candidates left → stop ear and switch
+        // stop ear and switch
         if (candidates.length === 0) {
             if (!peekOnly) {
                 if (ear === "left") this.doneLeft = true
@@ -181,16 +172,16 @@ export class GpToneIterator extends ToneIterator {
 
         let bestF = candidates[0],
             bestStd = -Infinity
-        
+
         for (const f of candidates) {
-            const { std } = gp.predictAt(f) // Predict at the candidate frequency, get the standard deviation
+            const { std } = gp.predictAt(f) // Predict at the candidate frequency, for std
             if (std > bestStd) {
                 bestStd = std
                 bestF = f
             }
         }
 
-        // If already confident, stop this ear and recurse to other
+        // If already confident, stop this ear and go to other
         if (
             gp &&
             (ear === "left" ? this.testsLeft : this.testsRight) >= this.MIN_POINTS &&
@@ -205,7 +196,7 @@ export class GpToneIterator extends ToneIterator {
             return this.computeNext(peekOnly)
         }
 
-        // Commit alternation for next round
+        // Commit for next round
         if (!peekOnly) {
             const other = ear === "left" ? "right" : "left"
             const otherSeeding =
@@ -227,13 +218,13 @@ export class GpToneIterator extends ToneIterator {
         return m
     }
 
-    // Look at sorted tested points; if an interval has > threshold dB per octave jump, test its log-midpoint next
+    // Midpoint test slope
     private static findLargeSlopeMidpoint(
         ear: Ear,
         thresholdDbPerOct: number
     ): number | null {
         const gp = this.getGp(ear)
-        // GaussianProcess1D exposes raw obs via .points (xLog, yDb). Convert/sort by f.
+
         const pts = gp.points
             .map(o => ({ fHz: 1000 * Math.pow(2, o.xLog), yDb: o.yDb }))
             .sort((a, b) => a.fHz - b.fHz)
@@ -247,7 +238,7 @@ export class GpToneIterator extends ToneIterator {
                 b = pts[i + 1]
             const dxOct = Math.abs(Math.log2(b.fHz / a.fHz))
             if (dxOct <= 0) continue
-            const slope = Math.abs((b.yDb - a.yDb) / dxOct) // dB per octave
+            const slope = Math.abs((b.yDb - a.yDb) / dxOct)
             if (slope > thresholdDbPerOct && slope > bestSlope) {
                 const midLog = (Math.log2(a.fHz) + Math.log2(b.fHz)) / 2
                 const mid = Math.pow(2, midLog)

@@ -1,6 +1,4 @@
-// constants/ISO3897.ts
-
-/** Free-field reference thresholds (dB SPL) from ISO 389-7:2019 Table 1 */
+// Reference thresholds for free-field listening conditions according to ISO 389-7
 export const REFERENCE_THRESHOLDS_FREE_FIELD: Record<number, number> = {
     20: 78.1,
     25: 68.7,

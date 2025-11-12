@@ -5,9 +5,9 @@ export type GPParams = { sigmaF: number; ell: number; sigmaN: number }
 
 export class GaussianProcess1D {
     private obs: Obs[] = []
-    private K?: Matrix // K = Kff + sn^2 I
-    private L?: Matrix // Cholesky factor of K
-    private alpha?: Matrix // K^{-1} y
+    private K?: Matrix 
+    private L?: Matrix // cholesky factor of K
+    private alpha?: Matrix 
     private params: GPParams
 
     constructor(params: GPParams = { sigmaF: 40, ell: 0.6, sigmaN: 3 }) {
@@ -53,7 +53,7 @@ export class GaussianProcess1D {
         const chol = new CholeskyDecomposition(K)
         const L = chol.lowerTriangularMatrix
 
-        // Solve K alpha = y via two triangular solves: L v = y, L^T alpha = v
+        //solve using lower triangular
         const v = solve(L, y)
         const alpha = solve(L.transpose(), v)
 
@@ -69,12 +69,11 @@ export class GaussianProcess1D {
         const xStar = GaussianProcess1D.toXLog(fHz)
         const n = this.obs.length
 
-        // k_* (n x 1)
+
         const kstar = Matrix.columnVector(this.obs.map(o => this.rbf(xStar, o.xLog)))
-        // mean = k_*^T alpha
+
         const mean = kstar.transpose().mmul(this.alpha!).get(0, 0)
 
-        // var = k** - k_*^T K^{-1} k_* ; compute v = solve(L, k_*)
         const v = solve(this.L, kstar)
         const kss = this.rbf(xStar, xStar)
         const var_ = Math.max(0, kss - v.transpose().mmul(v).get(0, 0))
@@ -82,7 +81,7 @@ export class GaussianProcess1D {
         return { mean, std: Math.sqrt(var_) }
     }
 
-    // Choose the candidate freq with largest posterior std (variance sampling)
+    // choose the candidate freq with largest posterior std 
     nextFrequency(candidatesHz: number[]) {
         let best = candidatesHz[0],
             bestStd = -Infinity

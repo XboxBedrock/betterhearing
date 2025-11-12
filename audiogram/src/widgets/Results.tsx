@@ -13,7 +13,7 @@ import { PureToneSupplier } from "../audio/impl/pure"
 import * as Tone from "tone"
 import { LineChart } from '@mantine/charts';
 import { GenericToneIterator } from "../audio/impl/genericIterator"
-import { GpToneIterator } from "../audio/impl/GpToneIterator"
+import { GpToneIterator } from "../audio/impl/gpToneIterator"
 
 export function Results() {
     const navigate = useNavigate()
@@ -24,11 +24,11 @@ export function Results() {
 
     useEffect(() => {
         player.stopTone() 
-        Tone.Transport.stop() // Stop the Tone.js transport to ensure no tones are playing
+        Tone.Transport.stop() // stop tone.js
         //set tonejs volume to 0
-        Tone.Master.volume.value = -Infinity // Mute the master volume to stop any sound
+        Tone.Master.volume.value = -Infinity
 
-        // Get data from URL parameters
+        // get data from URL parameters
         const urlParams = new URLSearchParams(window.location.search)
         const dataParam = urlParams.get('data')
         
@@ -40,11 +40,11 @@ export function Results() {
                 console.log("Collected Data from URL:", collectedData)
             } catch (error) {
                 console.error("Error parsing data from URL:", error)
-                // Fallback to GpToneIterator if URL parsing fails
+                //fallback
                 collectedData = GpToneIterator.getCollectedData()
             }
         } else {
-            // Fallback to GpToneIterator if no URL data
+
             collectedData = GpToneIterator.getCollectedData()
             console.log("Collected Data from GpToneIterator:", collectedData)
         }
@@ -74,17 +74,17 @@ export function Results() {
             if (frequency >= 1000) {
                 frequency = (frequency / 1000)
                 if (frequency % 1 === 0) {
-                    newFrequency = frequency.toFixed(0) + 'K' // Convert to integer if no decimal part
+                    newFrequency = frequency.toFixed(0) + 'K' 
                 } else {
-                    newFrequency = frequency.toFixed(1) + ' K'; // Append 'kHz' for frequencies greater than 1000 Hz
+                    newFrequency = frequency.toFixed(1) + ' K';
                 }
 
                 
             }// Convert to kHz if greater than 1000 Hz
             return {
-                frequency: newFrequency, // Convert frequency to kHz if greater than 1000 Hz
-                left: item.left !== null ? item.left : -10, // Default value for missing left ear data
-                right: item.right !== null ? item.right : -10 // Default value for missing right ear data
+                frequency: newFrequency, 
+                left: item.left !== null ? item.left : -10, 
+                right: item.right !== null ? item.right : -10 
             }
         })
 
@@ -92,7 +92,7 @@ export function Results() {
 
         setData(finalData);
 
-    }, []) // Re-run effect when volume changes
+    }, [])
 
 
 

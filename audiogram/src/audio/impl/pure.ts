@@ -28,10 +28,10 @@ export class PureToneSupplier extends ToneSupplier {
         levelHL: number,
         sampleRate = 44100
     ) {
-        // Ensure Tone.js is ready
+
         await Tone.start()
 
-        // Play the tone
+
         await this.playToneAtHLNoStart(freq, duration, sampleRate, Tone.now())
     }
 
@@ -41,13 +41,12 @@ export class PureToneSupplier extends ToneSupplier {
         sampleRate = 44100,
         startTime: number = Tone.now()
     ) {
-        // Ensure Tone.js is ready
+
         PureToneSupplier.fc = this.findCentre(freq)
 
-        const ref = REFERENCE_THRESHOLDS_FREE_FIELD[PureToneSupplier.fc] || 0 // Default to 0 if not found
+        const ref = REFERENCE_THRESHOLDS_FREE_FIELD[PureToneSupplier.fc] || 0
 
-        // Convert levelHL to dB SPL relative to the reference threshold
-        const levelDbSPL = this.levelHL + ref // Assuming levelHL is in dB
+        const levelDbSPL = this.levelHL + ref
 
         PureToneSupplier.osc = new Tone.Oscillator({
             frequency: PureToneSupplier.fc, // base pitch in Hz
@@ -55,16 +54,15 @@ export class PureToneSupplier extends ToneSupplier {
         })
 
         PureToneSupplier.vol = new Tone.Volume({
-            volume: levelDbSPL // Set the volume to the calculated dB SPL
-        }).toDestination() // Connect the volume node to the destination
+            volume: levelDbSPL
+        }).toDestination() // Connect volume node to the destination
 
         const now = startTime
 
-        PureToneSupplier.osc.connect(PureToneSupplier.vol) // Connect the oscillator to the volume node
+        PureToneSupplier.osc.connect(PureToneSupplier.vol)
 
         PureToneSupplier.osc.toDestination()
 
-        //make it so theres an oscilating fade in and out
     }
 
 
@@ -84,36 +82,33 @@ export class PureToneSupplier extends ToneSupplier {
         //src.connect(this.audioContext.destination);
         //src.start();
 
-        this.levelHL = levelHL // Store the levelHL for later use
+        this.levelHL = levelHL
         if (PureToneSupplier.osc) PureToneSupplier.osc.stop()
         await this.playToneAtHLNoStart(freq, play, sampleRate, Tone.now())
 
         await Tone.start()
-    
-        PureToneSupplier.osc.start(Tone.now()) // Start the oscillator at the current time
+
+        PureToneSupplier.osc.start(Tone.now())
     }
 
     public async stopTone() {
-        // Stop the Tone.js Transport
-        if (PureToneSupplier.osc)// Dispose of the oscillator to free resources
+
+        if (PureToneSupplier.osc) {
             console.log("Stopping oscillator")
             PureToneSupplier.osc.stop(Tone.now())
+        }
     }
 
     public changeVolume(volume: number): void {
-        // Change the volume of the oscillator
-        // This is a placeholder as Tone.js handles volume differently
-        // You might need to adjust the volume of the destination or the oscillator directly
 
-        this.levelHL = volume // Update the levelHL to reflect the new volume
+        this.levelHL = volume
         if (PureToneSupplier.vol) {
 
             const ref = REFERENCE_THRESHOLDS_FREE_FIELD[PureToneSupplier.fc] || 0 // Default to 0 if not found
 
-            // Convert levelHL to dB SPL relative to the reference threshold
-            const levelDbSPL = this.levelHL + ref // Assuming levelHL is in dB
-            //PureToneSupplier.vol.volume.value =levelDbSPL // Update the volume node's volume
-            Tone.Master.volume.value = levelDbSPL // Update the master volume
-        } // Update the oscillator's volume
+            const levelDbSPL = this.levelHL + ref
+            //PureToneSupplier.vol.volume.value =levelDbSPL 
+            Tone.Master.volume.value = levelDbSPL
+        }
     }
 }
